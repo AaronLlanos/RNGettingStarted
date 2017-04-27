@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
+
 import { AsyncStorage } from 'react-native';
+import { StackNavigator } from 'react-navigation';
+
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
@@ -16,6 +19,10 @@ import MainScreen from './components/MainScreen';
  * is finished.
  */
 const store = createStore(reducers, {}, applyMiddleware(ReduxThunk, createLogger()), autoRehydrate());
+
+const Navigator = StackNavigator({
+  Main: { screen: MainScreen }
+});
 
 export default class App extends Component {
 
@@ -35,7 +42,7 @@ export default class App extends Component {
     if (!this.state.rehydrated) { return null; }
     return (
       <Provider store={store}>
-        <MainScreen />
+        <Navigator />
       </Provider>
     );
   }
