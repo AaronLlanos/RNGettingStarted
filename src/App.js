@@ -11,6 +11,7 @@ import { persistStore, autoRehydrate } from 'redux-persist';
 
 import reducers from './reducers';
 import MainScreen from './components/MainScreen';
+import GistScreen from './components/GistScreen';
 
 /**
  * autoRehydrate is a store enhancer that will automatically shallow merge the
@@ -20,8 +21,24 @@ import MainScreen from './components/MainScreen';
  */
 const store = createStore(reducers, {}, applyMiddleware(ReduxThunk, createLogger()), autoRehydrate());
 
+/**
+ * Will pass the navigator as a child of the app to ensure redux loads before the
+ * app does. This also allows for stack to be seen on high level app intro.
+ * @type {[type]}
+ */
 const Navigator = StackNavigator({
-  Main: { screen: MainScreen }
+  Main: {
+    screen: MainScreen,
+    navigationOptions: { title: 'Home' }
+  },
+  Gist: {
+    screen: GistScreen,
+    navigationOptions: ({navigation}) => {
+      const { gist } = navigation.state.params;
+      const title = (gist.owner && gist.owner.login) || gist.id;
+      return { title }
+    }
+  }
 });
 
 export default class App extends Component {

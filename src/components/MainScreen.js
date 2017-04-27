@@ -1,29 +1,51 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
-export default class MainScreen extends Component {
+import * as actions from '../actions';
 
-  static navigationOptions = {
-    title: 'Home',
+
+const Gist = ({gist, onPress}) => {
+  return (
+    <View>
+      <TouchableHighlight onPress={() => onPress(gist)} >
+        <Text>{gist.id}</Text>
+      </TouchableHighlight>
+    </View>
+  )
+}
+
+class MainScreen extends Component {
+  constructor () {
+    super();
+    this.onPress = this.onPress.bind(this);
   }
-
-  render() {
+  componentWillMount () {
+    this.props.actions.getGists();
+  }
+  onPress (gist) {
+    this.props.navigation.navigate('Gist', {gist})
+  }
+  render () {
+    const { gists } = this.props
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit everything in /src
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
+        <Text style={styles.welcome}> Welcome to React Native! </Text>
+        {gists && gists.map(gist => <Gist key={gist.id} gist={gist} onPress={this.onPress} />)}
       </View>
     );
   }
 }
+
+function mapStateToProps ({gists}) {
+  return { gists }
+}
+function mapDispatchToProps (dispatch) {
+  return { actions: bindActionCreators(actions, dispatch) }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MainScreen);
 
 const styles = StyleSheet.create({
   container: {
