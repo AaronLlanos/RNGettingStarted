@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-
-import * as actions from '../actions';
 
 export default class GistScreen extends Component {
   render () {
