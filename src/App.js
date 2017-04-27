@@ -1,44 +1,42 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { AsyncStorage } from 'react-native';
+import { createStore, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import ReduxThunk from 'redux-thunk';
+import { createLogger } from 'redux-logger';
+import { persistStore, autoRehydrate } from 'redux-persist';
 
-export default class GettingStartedApp extends Component {
-  render() {
+import reducers from './reducers';
+import MainScreen from './components/MainScreen';
+
+/**
+ * autoRehydrate is a store enhancer that will automatically shallow merge the
+ * persisted state for each key. Additionally it queues any actions that are
+ * dispatched before rehydration is complete, and fires them after rehydration
+ * is finished.
+ */
+const store = createStore(reducers, {}, applyMiddleware(ReduxThunk, createLogger()), autoRehydrate());
+
+export default class App extends Component {
+
+  constructor () {
+    super();
+    this.state = { rehydrated: false };
+  }
+
+  componentWillMount () {
+    // Store rehydration
+    persistStore(store, { storage: AsyncStorage }, () => {
+      this.setState({ rehydrated: true });
+    });
+  }
+
+  render () {
+    if (!this.state.rehydrated) { return null; }
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit everything in /src
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
+      <Provider store={store}>
+        <MainScreen />
+      </Provider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
